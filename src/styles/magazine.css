@@ -1,0 +1,977 @@
+/* ===== Impact magazine — physical page-turn reading experience ===== */
+
+.reader {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem 1rem 2rem;
+  background:
+    radial-gradient(
+      120% 90% at 50% -10%,
+      rgba(15, 118, 110, 0.12) 0%,
+      rgba(15, 118, 110, 0) 45%
+    ),
+    radial-gradient(
+      140% 100% at 50% 10%,
+      #f4eee0 0%,
+      #e1d9c7 46%,
+      #c8bea7 100%
+    );
+  color: #1c1a17;
+}
+
+/* ——— Decorative floating crypto coins behind the book ——— */
+.crypto-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.crypto-coin {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  background: radial-gradient(
+    circle at 34% 28%,
+    rgba(255, 255, 255, 0.4) 0%,
+    rgba(255, 255, 255, 0) 58%
+  );
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0.14;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  animation: coin-float 22s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes coin-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-4deg);
+  }
+  50% {
+    transform: translateY(-24px) rotate(4deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .crypto-coin {
+    animation: none;
+  }
+}
+
+.book-shell {
+  position: relative;
+  z-index: 1;
+  width: min(920px, 94vw);
+  aspect-ratio: 25 / 19; /* matches a two-page 500×760 spread */
+  margin-block: auto; /* center when room, top-align when overflowing */
+  filter: drop-shadow(0 24px 44px rgba(60, 45, 20, 0.3));
+}
+
+/* react-pageflip attaches `.stf__parent` to this node and sizes it from the
+   container — give it a definite height so pages fill the spread. */
+.book-shell .magazine-book {
+  height: 100%;
+}
+
+/* Every page (cover, article, divider…) fills its flipbook slot */
+.page,
+.cover,
+.back-cover,
+.divider,
+.toc,
+.sources,
+.about {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Text-heavy pages scroll internally when their content is taller than the
+   page (small phones, short viewports) so nothing is ever cut off. Covers and
+   chapter dividers stay clipped and centered by design. */
+.toc,
+.sources,
+.page-inner {
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(15, 118, 110, 0.45) transparent;
+}
+.toc::-webkit-scrollbar,
+.sources::-webkit-scrollbar,
+.page-inner::-webkit-scrollbar {
+  width: 6px;
+}
+.toc::-webkit-scrollbar-thumb,
+.sources::-webkit-scrollbar-thumb,
+.page-inner::-webkit-scrollbar-thumb {
+  background: rgba(15, 118, 110, 0.45);
+  border-radius: 999px;
+}
+
+/* ——— Editorial paper page ——— */
+.page,
+.about,
+.toc,
+.sources {
+  background: linear-gradient(160deg, #fefcf7 0%, #f6f1e6 100%);
+  color: #221f1a;
+  font-family: var(--font-serif), Georgia, "Times New Roman", serif;
+  font-size: 0.82rem;
+  line-height: 1.48;
+}
+.toc,
+.sources {
+  padding: 1.7rem 2.1rem 2.3rem;
+}
+
+/* Inner scroll column for article and about pages. The page number is pinned
+   to the bottom when the page fits, and flows after the text (instead of
+   overlapping it) when the content is taller than the page. */
+.page-inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 1.7rem 2.1rem 0;
+}
+
+/* faint paper grain */
+.page::after,
+.toc::after,
+.sources::after,
+.about::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(120, 100, 60, 0.025) 0 1px,
+    transparent 1px 3px
+  );
+}
+
+.page > *,
+.toc > *,
+.sources > *,
+.about > * {
+  position: relative;
+  z-index: 1;
+}
+.page-inner > * {
+  position: relative;
+}
+
+/* ——— Cover ——— */
+.cover {
+  background:
+    radial-gradient(120% 75% at 50% -8%, rgba(15, 118, 110, 0.1) 0%, rgba(15, 118, 110, 0) 55%),
+    linear-gradient(165deg, #f9f4e9 0%, #f0e7d4 100%);
+  color: #1c1a17;
+}
+.cover-inner {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3rem 2.5rem;
+  box-sizing: border-box;
+}
+/* thin inner frame */
+.cover::before {
+  content: "";
+  position: absolute;
+  inset: 1.05rem;
+  border: 1px solid rgba(15, 118, 110, 0.22);
+  pointer-events: none;
+}
+.cover-kicker {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.36em;
+  text-transform: uppercase;
+  color: #6f6a60;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 2.4rem;
+}
+.cover-kicker::before,
+.cover-kicker::after {
+  content: "";
+  height: 1px;
+  width: 2.2rem;
+  background: rgba(15, 118, 110, 0.5);
+}
+.cover-title {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 4.6rem;
+  line-height: 0.9;
+  letter-spacing: 0.02em;
+  margin: 0 0 1.5rem;
+}
+.cover-title-dot {
+  color: #0f766e;
+}
+.cover-rule {
+  position: relative;
+  width: 72px;
+  height: 1px;
+  background: #0f766e;
+  margin: 0 auto 1.5rem;
+}
+.cover-rule::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  background: #0f766e;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+.cover-deck {
+  max-width: 30ch;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.08rem;
+  line-height: 1.55;
+  font-style: italic;
+  color: #4b463e;
+  margin: 0;
+}
+.cover-credit {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 0.66rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #8b8578;
+  margin: 1.7rem 0 0;
+}
+.cover-credit-name {
+  display: block;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.2rem;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: #1c1a17;
+  margin-top: 0.35rem;
+}
+/* Faint oversized coin behind the cover text — subtle, non-interactive. */
+.cover-watermark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 24rem;
+  line-height: 1;
+  color: #0f766e;
+  opacity: 0.05;
+  pointer-events: none;
+  transform: rotate(-14deg);
+}
+.cover-coins {
+  display: flex;
+  gap: 0.55rem;
+  justify-content: center;
+  margin-top: 1.35rem;
+}
+.cover-coins span {
+  width: 2.1rem;
+  height: 2.1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(15, 118, 110, 0.4);
+  color: #0f766e;
+  background: rgba(15, 118, 110, 0.06);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.cover-downloads {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+}
+.cover-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 1.05rem;
+  border: 1px solid rgba(15, 118, 110, 0.55);
+  border-radius: 999px;
+  color: #0f766e;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.cover-download:hover {
+  background: #0f766e;
+  color: #fff;
+}
+.cover-download:focus-visible {
+  outline: 2px solid #0f766e;
+  outline-offset: 2px;
+}
+.cover-foot {
+  position: absolute;
+  bottom: 2.4rem;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 0.64rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #8b8578;
+}
+.cover-foot::before,
+.cover-foot::after {
+  content: "";
+  height: 1px;
+  width: 1.6rem;
+  background: rgba(15, 118, 110, 0.4);
+}
+
+/* ——— Chapter divider ——— */
+.divider {
+  background:
+    radial-gradient(120% 80% at 50% 120%, rgba(47, 143, 134, 0.18) 0%, rgba(47, 143, 134, 0) 60%),
+    #14211e;
+  color: #f4efe3;
+}
+.divider-inner {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3rem 2.6rem;
+  box-sizing: border-box;
+}
+.divider-num {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 6.4rem;
+  line-height: 1;
+  color: #2f8f86;
+  margin-bottom: 1.1rem;
+}
+.divider h1 {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 2.7rem;
+  line-height: 1.02;
+  margin: 0 0 0.9rem;
+}
+.divider h1::after {
+  content: "";
+  display: block;
+  width: 44px;
+  height: 3px;
+  background: #2f8f86;
+  margin-top: 1.1rem;
+}
+.divider p {
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 1.02rem;
+  line-height: 1.6;
+  font-style: italic;
+  color: #bfc9c4;
+  max-width: 30ch;
+  margin: 0;
+}
+
+/* ——— Article page ——— */
+.running-head {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #8b8578;
+  margin-bottom: 0.9rem;
+}
+.running-head::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: #e2dbcd;
+  margin-top: 0.55rem;
+}
+.article h2 {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.62rem;
+  line-height: 1.1;
+  margin: 0 0 0.95rem;
+  text-wrap: balance;
+  padding-bottom: 0.6rem;
+}
+.article h2::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 2.4rem;
+  height: 3px;
+  background: #0f766e;
+}
+.article p {
+  margin: 0 0 0.7rem;
+}
+.drop-cap::first-letter {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 3.1rem;
+  line-height: 0.72;
+  float: left;
+  padding: 0.18rem 0.5rem 0.05rem 0;
+  color: #0f766e;
+  font-weight: 700;
+}
+.pullquote {
+  position: relative;
+  border: 0;
+  padding: 0.65rem 0 0.7rem;
+  margin: 1rem 0 1.05rem;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.12rem;
+  line-height: 1.38;
+  font-style: italic;
+  color: #1f3b36;
+  text-align: center;
+}
+.pullquote-mark {
+  display: block;
+  font-size: 2.4rem;
+  line-height: 1;
+  color: #0f766e;
+  margin-bottom: 0.2rem;
+}
+.pullquote::after {
+  content: "";
+  display: block;
+  width: 40px;
+  height: 1px;
+  background: #0f766e;
+  margin: 0.7rem auto 0;
+}
+.stat {
+  margin-top: 1rem;
+  padding: 0.8rem 1rem 0.85rem;
+  background: rgba(15, 118, 110, 0.055);
+  border-left: 3px solid #0f766e;
+  border-radius: 0 6px 6px 0;
+}
+.stat-value {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.9rem;
+  color: #0f766e;
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+.stat-label {
+  font-size: 0.78rem;
+  color: #55503f;
+  margin-top: 0.3rem;
+  line-height: 1.4;
+}
+.stat-source {
+  font-size: 0.62rem;
+  color: #a09a8c;
+  margin-top: 0.4rem;
+  padding-top: 0.4rem;
+  border-top: 1px dashed #e2dbcd;
+}
+.page-foot {
+  flex: 0 0 auto;
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.5rem 0 1.2rem;
+  border-top: 1px solid #e7dfd0;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #a09a8c;
+}
+
+/* ——— Table of contents ——— */
+.toc h2 {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 2rem;
+  margin: 0 0 0.4rem;
+}
+.toc h2::after {
+  content: "";
+  display: block;
+  width: 2.4rem;
+  height: 3px;
+  background: #0f766e;
+  margin-top: 0.45rem;
+}
+.toc-sub {
+  font-size: 0.8rem;
+  color: #6f6a60;
+  margin-bottom: 1.2rem;
+}
+.toc-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.8rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.6rem 0;
+  border: 0;
+  border-bottom: 1px solid #e8e1d2;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  color: inherit;
+  transition: color 0.15s ease, padding-left 0.15s ease;
+}
+.toc-item:hover {
+  color: #0f766e;
+  padding-left: 0.35rem;
+}
+.toc-item:focus-visible {
+  outline: 2px solid #0f766e;
+  outline-offset: 2px;
+}
+.toc-num {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.15rem;
+  color: #0f766e;
+  width: 2ch;
+}
+.toc-title {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.04rem;
+  display: flex;
+  align-items: baseline;
+  flex: 1;
+  min-width: 0;
+}
+.toc-title::after {
+  content: "";
+  flex: 1;
+  margin: 0 0.5rem 0.28rem;
+  border-bottom: 1px dotted #c9c1af;
+}
+.toc-page {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 0.66rem;
+  color: #a09a8c;
+}
+.toc-how {
+  margin-top: 1.2rem;
+  font-size: 0.76rem;
+  color: #6f6a60;
+}
+
+/* ——— Sources & About ——— */
+.sources h2,
+.about h2 {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.7rem;
+  margin: 0 0 0.4rem;
+}
+.sources h2::after,
+.about h2::after {
+  content: "";
+  display: block;
+  width: 2.4rem;
+  height: 3px;
+  background: #0f766e;
+  margin-top: 0.45rem;
+}
+.sources-sub {
+  font-size: 0.78rem;
+  color: #6f6a60;
+  margin-bottom: 1.1rem;
+}
+.source {
+  margin-bottom: 0.95rem;
+  padding-left: 0.75rem;
+  border-left: 2px solid #e7dfd0;
+  transition: border-color 0.15s ease;
+}
+.source:hover {
+  border-left-color: #0f766e;
+}
+.source-name {
+  font-weight: 600;
+}
+.source-url {
+  display: block;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 0.7rem;
+  color: #0f766e;
+  word-break: break-all;
+  margin-top: 0.1rem;
+  text-decoration: none;
+}
+.source-url:hover {
+  text-decoration: underline;
+}
+.source-note {
+  font-size: 0.76rem;
+  color: #6f6a60;
+  margin-top: 0.1rem;
+}
+.about p {
+  margin-bottom: 0.85rem;
+}
+
+/* ——— Back cover ——— */
+.back-cover {
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgba(47, 143, 134, 0.16) 0%, rgba(47, 143, 134, 0) 55%),
+    #14211e;
+  color: #f4efe3;
+}
+.back-cover-inner {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3rem 2.5rem;
+  box-sizing: border-box;
+}
+.back-cover::before {
+  content: "";
+  position: absolute;
+  inset: 1.05rem;
+  border: 1px solid rgba(244, 239, 227, 0.18);
+  pointer-events: none;
+}
+.back-cover .cover-title {
+  font-size: 2.6rem;
+}
+.back-cover .cover-title-dot {
+  color: #2f8f86;
+}
+.back-cover .cover-watermark {
+  color: #2f8f86;
+  opacity: 0.08;
+}
+.back-tagline {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.05rem;
+  font-style: italic;
+  line-height: 1.5;
+  color: #cfd9d3;
+  max-width: 28ch;
+  margin-top: 1rem;
+}
+.back-cover .cover-foot::before,
+.back-cover .cover-foot::after {
+  background: rgba(47, 143, 134, 0.5);
+}
+
+/* ——— Reading chrome below the book ——— */
+.reader-chrome {
+  margin-top: 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 0.8rem;
+  color: #4b463e;
+}
+.chrome-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.chrome-btn {
+  border: 1px solid rgba(60, 45, 20, 0.25);
+  background: rgba(255, 252, 245, 0.6);
+  color: #3a352c;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font: inherit;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+.chrome-btn:hover {
+  background: #0f766e;
+  color: #fff;
+}
+.chrome-btn:active {
+  transform: translateY(1px);
+}
+.chrome-btn:focus-visible {
+  outline: 2px solid #0f766e;
+  outline-offset: 2px;
+}
+.chrome-count {
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+}
+.progress {
+  width: 180px;
+  height: 3px;
+  background: rgba(60, 45, 20, 0.18);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progress > span {
+  display: block;
+  height: 100%;
+  background: #0f766e;
+  transition: width 0.25s ease;
+}
+
+/* ——— First-run swipe hint (touch devices only) ——— */
+.swipe-hint {
+  position: fixed;
+  left: 50%;
+  bottom: 6.25rem;
+  transform: translateX(-50%);
+  z-index: 70;
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.05rem;
+  border-radius: 999px;
+  background: rgba(28, 26, 23, 0.88);
+  color: #faf7ee;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 0.82rem;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: hint-pulse 2.4s ease-in-out infinite;
+}
+.swipe-hint-arrow {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+@keyframes hint-pulse {
+  0%,
+  100% {
+    opacity: 0.92;
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    opacity: 0.62;
+    transform: translateX(-50%) translateY(4px);
+  }
+}
+@media (pointer: coarse) {
+  .swipe-hint {
+    display: inline-flex;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .swipe-hint {
+    animation: none;
+  }
+}
+
+/* ——— Loading skeleton ——— */
+.loading-book {
+  width: min(820px, 92vw);
+  aspect-ratio: 10 / 7;
+  border-radius: 6px;
+  background: linear-gradient(
+    100deg,
+    #e6dfd0 40%,
+    #f2ece0 50%,
+    #e6dfd0 60%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.2s ease infinite;
+}
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-book {
+    animation: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .reader {
+    /* Room for the fixed bottom bar + device safe areas. */
+    padding: calc(env(safe-area-inset-top) + 0.75rem) 0.75rem
+      calc(env(safe-area-inset-bottom) + 6rem);
+    justify-content: center;
+  }
+
+  /* Single-page portrait layout: the shell must match one page's
+     proportions (500×760 ≈ 25/38) so the book fills the phone screen
+     instead of shrinking into a letterboxed strip. */
+  .book-shell {
+    width: min(96vw, 440px);
+    aspect-ratio: 25 / 38;
+    margin: 0;
+    filter: drop-shadow(0 16px 30px rgba(60, 45, 20, 0.28));
+  }
+  .book-shell .magazine-book,
+  .book-shell .stf__parent {
+    touch-action: pan-y;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ——— Bottom app bar ——— */
+  .reader-chrome {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 60;
+    margin: 0;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 0.4rem;
+    padding: 0.45rem 0.75rem calc(0.45rem + env(safe-area-inset-bottom));
+    background: rgba(248, 244, 234, 0.92);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(60, 45, 20, 0.14);
+    box-shadow: 0 -6px 24px rgba(60, 45, 20, 0.08);
+  }
+  .reader-chrome .progress {
+    width: 100%;
+    height: 4px;
+  }
+  .chrome-controls {
+    width: 100%;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    justify-content: space-between;
+  }
+  .chrome-btn {
+    min-height: 48px;
+    padding: 0.6rem 0.7rem;
+    font-size: 0.95rem;
+    border-radius: 14px;
+    background: rgba(255, 252, 245, 0.9);
+  }
+  .chrome-btn--contents {
+    flex: 0 0 auto;
+    font-size: 0.82rem;
+    color: #0f766e;
+    border-color: rgba(15, 118, 110, 0.45);
+  }
+  .chrome-btn--prev,
+  .chrome-btn--next {
+    flex: 1 1 0;
+    font-weight: 600;
+  }
+  .chrome-btn--next {
+    background: #0f766e;
+    border-color: #0f766e;
+    color: #fff;
+  }
+  .chrome-btn--next:hover {
+    background: #0d655e;
+  }
+  .chrome-count {
+    flex: 0 0 auto;
+    font-size: 0.82rem;
+    white-space: nowrap;
+  }
+
+  /* Slightly larger, airier text on small single-page layouts,
+     where pages scroll internally rather than fitting on one spread. */
+  .toc,
+  .sources {
+    font-size: 0.9rem;
+    line-height: 1.56;
+    padding: 1.35rem 1.35rem 2.1rem;
+  }
+  .page,
+  .about {
+    font-size: 0.9rem;
+    line-height: 1.56;
+  }
+  .page-inner {
+    padding: 1.35rem 1.35rem 0;
+  }
+  .article h2 {
+    font-size: 1.5rem;
+  }
+  .toc-item {
+    padding: 0.7rem 0;
+  }
+
+  /* Keep the cover (and its credit line) fitting within one small page. */
+  .cover-inner {
+    padding: 1.6rem 1.4rem;
+  }
+  /* Hide the coin strip on small covers so nothing clips; the faint
+     watermark and the floating background coins still show. */
+  .cover-coins {
+    display: none;
+  }
+  .cover-kicker {
+    margin-bottom: 1.1rem;
+  }
+  .cover-title {
+    font-size: 3.5rem;
+    margin-bottom: 0.8rem;
+  }
+  .cover-rule {
+    margin-bottom: 0.8rem;
+  }
+  .cover-deck {
+    font-size: 0.95rem;
+  }
+  .cover-credit {
+    margin-top: 0.7rem;
+  }
+  .cover-downloads {
+    margin-top: 0.85rem;
+    gap: 0.45rem;
+  }
+  .cover-download {
+    padding: 0.55rem 0.9rem;
+    font-size: 0.66rem;
+  }
+}
