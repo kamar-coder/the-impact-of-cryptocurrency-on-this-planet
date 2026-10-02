@@ -1,2 +1,2 @@
-:HL["/the-impact-of-cryptocurrency-on-this-planet/_next/static/chunks/1zejkwrqhev6n.css","style"]
-0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"/_not-found","param":null,"prefetchHints":4192,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}}}},"staleTime":300,"buildId":"WHUCz8aFX-rfwH3hm1tF4"}
+:HL["/the-impact-of-cryptocurrency-on-this-planet/_next/static/chunks/0j9r3u610omgm.css","style"]
+0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"/_not-found","param":null,"prefetchHints":4192,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}}}},"staleTime":300,"buildId":"DHIN7Ycc3FfjxokqoehzK"}
